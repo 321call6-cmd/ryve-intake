@@ -91,6 +91,9 @@ select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='htt
 .srow:last-child{border-bottom:none}
 .sk{color:var(--ts);flex-shrink:0}.sv{color:var(--tx);font-weight:500;text-align:right;word-break:break-word}
 .abtns{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.bemail{width:100%;padding:12px;border-radius:var(--rs);background:var(--gp);border:none;color:#fff;font-weight:600;font-size:14px;cursor:pointer;font-family:var(--f);transition:all .2s}
+.bemail:hover{background:#142D22}
+.bemail:disabled{opacity:.6;cursor:not-allowed}
 .bcopy{width:100%;padding:12px;border-radius:var(--rs);background:var(--gl);border:1.5px solid var(--gm);color:var(--gd);font-weight:600;font-size:14px;cursor:pointer;font-family:var(--f);transition:all .2s}
 .bcopy:hover{background:var(--gm)}
 .bwa{width:100%;padding:12px;border-radius:var(--rs);background:#25D366;border:none;color:#fff;font-weight:600;font-size:14px;cursor:pointer;font-family:var(--f)}
@@ -100,7 +103,7 @@ select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='htt
 .cbox.chk{border-color:var(--g);background:var(--gl)}
 .cchk{width:19px;height:19px;border-radius:5px;border:1.5px solid var(--br);background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px}
 .cbox.chk .cchk{background:var(--g);border-color:var(--g)}
-.cchk::after{content:'checkmark';font-size:0;width:10px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px);display:none}
+.cchk::after{content:'';width:10px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px);display:none}
 .cbox.chk .cchk::after{display:block}
 .ctxt{font-size:13px;color:var(--tm);line-height:1.6}
 </style>
@@ -137,434 +140,97 @@ select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='htt
 
 <script>
 var D={}, ST=0, LG='en';
-
 function t(e,s){return LG==='es'?s:e;}
-
 function v(k,fb){return D[k]!==undefined?D[k]:(fb!==undefined?fb:'');}
 function sv(k,val){D[k]=val;}
-
 function eq(a,b){return String(a)===String(b);}
-
 function esc(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
 
 function tf(k,lb,ph,hi,rq,tp){
   tp=tp||'text';
   var r=rq?'<span class="req">*</span>':'';
   var h=hi?'<span class="hint">'+hi+'</span>':'';
-  return '<div class="field"><label>'+lb+r+h+'</label>'+
-    '<input type="'+tp+'" placeholder="'+(ph||'')+'" value="'+(v(k)||'')+'" oninput="sv(\''+k+'\',this.value)"/></div>';
+  return '<div class="field"><label>'+lb+r+h+'</label><input type="'+tp+'" placeholder="'+(ph||'')+'" value="'+(v(k)||'')+'" oninput="sv(\''+k+'\',this.value)"/></div>';
 }
 function ta(k,lb,ph,hi,rq){
   var r=rq?'<span class="req">*</span>':'';
   var h=hi?'<span class="hint">'+hi+'</span>':'';
-  return '<div class="field"><label>'+lb+r+h+'</label>'+
-    '<textarea placeholder="'+(ph||'')+'" oninput="sv(\''+k+'\',this.value)">'+v(k)+'</textarea></div>';
+  return '<div class="field"><label>'+lb+r+h+'</label><textarea placeholder="'+(ph||'')+'" oninput="sv(\''+k+'\',this.value)">'+v(k)+'</textarea></div>';
 }
 function sl(k,lb,opts,hi,rq){
   var r=rq?'<span class="req">*</span>':'';
   var h=hi?'<span class="hint">'+hi+'</span>':'';
   var o=opts.map(function(x){return '<option value="'+x+'"'+(eq(v(k),x)?' selected':'')+'>'+x+'</option>';}).join('');
-  return '<div class="field"><label>'+lb+r+h+'</label>'+
-    '<select onchange="sv(\''+k+'\',this.value)"><option value="">'+t('Select…','Selecciona…')+'</option>'+o+'</select></div>';
+  return '<div class="field"><label>'+lb+r+h+'</label><select onchange="sv(\''+k+'\',this.value)"><option value="">'+t('Select…','Selecciona…')+'</option>'+o+'</select></div>';
 }
 function rf(k,lb,opts,hi,rq){
   var r=rq?'<span class="req">*</span>':'';
   var h=hi?'<span class="hint">'+hi+'</span>':'';
-  var items=opts.map(function(o){
-    var s=eq(v(k),o)?' sel':'';
-    return '<div class="opt radio'+s+'" onclick="pr(\''+k+'\',\''+esc(o)+'\',this)"><div class="oc"></div>'+o+'</div>';
-  }).join('');
+  var items=opts.map(function(o){var s=eq(v(k),o)?' sel':'';return '<div class="opt radio'+s+'" onclick="pr(\''+k+'\',\''+esc(o)+'\',this)"><div class="oc"></div>'+o+'</div>';}).join('');
   return '<div class="field"><label>'+lb+r+h+'</label><div class="opts">'+items+'</div></div>';
 }
 function cf(k,lb,opts,hi,rq,g2){
   var r=rq?'<span class="req">*</span>':'';
   var h=hi?'<span class="hint">'+hi+'</span>':'';
-  var cur=v(k,[]);
-  var gc=g2?' g2':'';
-  var items=opts.map(function(o){
-    var s=(Array.isArray(cur)&&cur.indexOf(o)>=0)?' sel':'';
-    return '<div class="opt'+s+'" onclick="pc(\''+k+'\',\''+esc(o)+'\',this)"><div class="oc"></div>'+o+'</div>';
-  }).join('');
+  var cur=v(k,[]);var gc=g2?' g2':'';
+  var items=opts.map(function(o){var s=(Array.isArray(cur)&&cur.indexOf(o)>=0)?' sel':'';return '<div class="opt'+s+'" onclick="pc(\''+k+'\',\''+esc(o)+'\',this)"><div class="oc"></div>'+o+'</div>';}).join('');
   return '<div class="field"><label>'+lb+r+h+'</label><div class="opts'+gc+'">'+items+'</div></div>';
 }
 function scf(k,lb,loL,hiL){
   var cur=v(k,'');
-  var btns=['1','2','3','4','5'].map(function(n){
-    return '<button class="sb'+(eq(cur,n)?' on':'')+'" onclick="ps(\''+k+'\',\''+n+'\',this)">'+n+'</button>';
-  }).join('');
-  return '<div class="field"><label>'+lb+'</label><div class="scale">'+btns+'</div>'+
-    '<div class="slabels"><span>1 — '+(loL||'')+'</span><span>5 — '+(hiL||'')+'</span></div></div>';
+  var btns=['1','2','3','4','5'].map(function(n){return '<button class="sb'+(eq(cur,n)?' on':'')+'" onclick="ps(\''+k+'\',\''+n+'\',this)">'+n+'</button>';}).join('');
+  return '<div class="field"><label>'+lb+'</label><div class="scale">'+btns+'</div><div class="slabels"><span>1 — '+(loL||'')+'</span><span>5 — '+(hiL||'')+'</span></div></div>';
 }
 function r2(a,b){return '<div class="r2">'+a+b+'</div>';}
 function sec(x){return '<div class="sec">'+x+'</div>';}
 function cn(x){return '<div class="cn"><p>'+x+'</p></div>';}
-function hdr(n,ti,su){
-  return '<div class="sbadge"><span class="n">0'+(n+1)+'</span> '+t('of 08','de 08')+'</div>'+
-    '<h2>'+ti+'</h2><p class="sub2">'+su+'</p>';
-}
+function hdr(n,ti,su){return '<div class="sbadge"><span class="n">0'+(n+1)+'</span> '+t('of 08','de 08')+'</div><h2>'+ti+'</h2><p class="sub2">'+su+'</p>';}
 function nv(n){
   var tot=9;
   var bk=n>0?'<button class="bbk" onclick="go('+(n-1)+')">'+t('← Back','← Atrás')+'</button>':'<div></div>';
-  var isL=n===tot-2;
-  var nc=isL?'bnx bsub':'bnx';
+  var isL=n===tot-2;var nc=isL?'bnx bsub':'bnx';
   var nx=n<tot-1?'<button class="'+nc+'" onclick="go('+(n+1)+')">'+t(isL?'Submit ✓':'Next →',isL?'Enviar ✓':'Siguiente →')+'</button>':'';
   return '<div class="nav">'+bk+nx+'</div>';
 }
+function pr(k,val,el){sv(k,val);var p=el.parentElement;for(var i=0;i<p.children.length;i++)p.children[i].classList.remove('sel');el.classList.add('sel');}
+function pc(k,val,el){var a=v(k,[]);if(!Array.isArray(a))a=[];var i=a.indexOf(val);if(i>=0){a.splice(i,1);el.classList.remove('sel');}else{a.push(val);el.classList.add('sel');}sv(k,a);}
+function ps(k,val,btn){sv(k,val);var p=btn.parentElement;for(var i=0;i<p.children.length;i++)p.children[i].classList.remove('on');btn.classList.add('on');}
+function tc(k,el){sv(k,!v(k,false));el.classList.toggle('chk',!!v(k,false));}
 
-function pr(k,val,el){
-  sv(k,val);
-  var p=el.parentElement;
-  for(var i=0;i<p.children.length;i++)p.children[i].classList.remove('sel');
-  el.classList.add('sel');
-}
-function pc(k,val,el){
-  var a=v(k,[]);
-  if(!Array.isArray(a))a=[];
-  var i=a.indexOf(val);
-  if(i>=0){a.splice(i,1);el.classList.remove('sel');}
-  else{a.push(val);el.classList.add('sel');}
-  sv(k,a);
-}
-function ps(k,val,btn){
-  sv(k,val);
-  var p=btn.parentElement;
-  for(var i=0;i<p.children.length;i++)p.children[i].classList.remove('on');
-  btn.classList.add('on');
-}
-function tc(k,el){
-  sv(k,!v(k,false));
-  el.classList.toggle('chk',!!v(k,false));
-}
+function s0(){return '<div class="card">'+hdr(0,t('Personal Information','Información Personal'),t('Basic data to reach you and schedule your first consultation.','Datos básicos para contactarte y agendar tu primera consulta.'))+r2(tf('fn',t('First Name','Nombre(s)'),'','',true),tf('ln',t('Last Name','Apellidos'),'','',true))+r2(tf('dob',t('Date of Birth','Fecha de Nacimiento'),'MM/DD/YYYY','',true,'date'),sl('sex',t('Biological sex','Sexo biológico'),['Female / Femenino','Male / Masculino','Prefer not to say / Prefiero no decir'],'',true))+sl('lang2',t('Primary language','Idioma principal'),['English','Español / Spanish','Both / Ambos'],'',true)+tf('city',t('City, State / City, Country','Ciudad, Estado / Ciudad, País'),'San Diego, CA  or  Tijuana, BC','',true)+tf('email','Email','you@email.com','',true,'email')+tf('phone',t('Phone (WhatsApp preferred)','Teléfono (WhatsApp preferido)'),'+1 619 000 0000',t('Include country code','Incluye código de país'))+sl('src',t('How did you find Ryve?','¿Cómo nos encontraste?'),['Instagram','TikTok','Facebook','Google',t('Doctor referral','Referido por médico'),t('Friend / Family','Amigo / Familiar'),'Other / Otro'],'',true)+nv(0)+'</div>';}
 
-function s0(){
-  return '<div class="card">'+
-    hdr(0,t('Personal Information','Información Personal'),
-      t('Basic data to reach you and schedule your first consultation.',
-        'Datos básicos para contactarte y agendar tu primera consulta.'))+
-    r2(tf('fn',t('First Name','Nombre(s)'),'','',true),
-       tf('ln',t('Last Name','Apellidos'),'','',true))+
-    r2(tf('dob',t('Date of Birth','Fecha de Nacimiento'),'MM/DD/YYYY','',true,'date'),
-       sl('sex',t('Biological sex','Sexo biológico'),
-         ['Female / Femenino','Male / Masculino','Prefer not to say / Prefiero no decir'],'',true))+
-    sl('lang2',t('Primary language','Idioma principal'),
-      ['English','Español / Spanish','Both / Ambos'],'',true)+
-    tf('city',t('City, State / City, Country','Ciudad, Estado / Ciudad, País'),
-      'San Diego, CA  or  Tijuana, BC','',true)+
-    tf('email','Email','you@email.com','',true,'email')+
-    tf('phone',t('Phone (WhatsApp preferred)','Teléfono (WhatsApp preferido)'),
-      '+1 619 000 0000',t('Include country code','Incluye código de país'))+
-    sl('src',t('How did you find Ryve?','¿Cómo nos encontraste?'),
-      ['Instagram','TikTok','Facebook','Google',
-       t('Doctor referral','Referido por médico'),
-       t('Friend / Family','Amigo / Familiar'),'Other / Otro'],'',true)+
-    nv(0)+'</div>';
-}
+function s1(){return '<div class="card">'+hdr(1,t('Body Measurements','Medidas Corporales'),t('These values allow us to calculate your nutritional needs and metabolic risk.','Estos valores permiten calcular tus necesidades nutricionales y riesgo metabólico.'))+r2(tf('wt',t('Current Weight','Peso Actual'),'185 lbs / 84 kg',t('Value + unit','Valor + unidad'),true),tf('ht',t('Height','Estatura'),"5'7\" / 170 cm",t('Value + unit','Valor + unidad'),true))+r2(tf('waist',t('Waist Circumference','Cintura'),'38 in / 97 cm',t('At navel, relaxed','A nivel del ombligo, relajado')),tf('hip',t('Hip Circumference','Cadera'),'42 in / 107 cm',t('Widest point','Punto más ancho')))+cn(t('Waist & hip are key metabolic risk markers — more predictive than weight alone.','Cintura y cadera son marcadores clave de riesgo metabólico — más predictivos que el peso solo.'))+tf('gwt',t('Target Weight (optional)','Peso Meta (opcional)'),'150 lbs / 68 kg',t('Leave blank if weight loss is not your main goal','Deja en blanco si bajar de peso no es tu objetivo principal'))+sl('whist',t('Weight history (past year)','Historial de peso (último año)'),[t('Stable','Estable'),t('Gained 1–5 kg','Subí 1–5 kg'),t('Gained 5–10 kg','Subí 5–10 kg'),t('Gained >10 kg','Subí más de 10 kg'),t('Lost weight','Bajé de peso'),t('Fluctuating','Fluctuante')])+nv(1)+'</div>';}
 
-function s1(){
-  return '<div class="card">'+
-    hdr(1,t('Body Measurements','Medidas Corporales'),
-      t('These values allow us to calculate your nutritional needs and metabolic risk.',
-        'Estos valores permiten calcular tus necesidades nutricionales y riesgo metabólico.'))+
-    r2(tf('wt',t('Current Weight','Peso Actual'),'185 lbs / 84 kg',t('Value + unit','Valor + unidad'),true),
-       tf('ht',t('Height','Estatura'),"5'7\" / 170 cm",t('Value + unit','Valor + unidad'),true))+
-    r2(tf('waist',t('Waist Circumference','Cintura'),'38 in / 97 cm',
-         t('At navel, relaxed','A nivel del ombligo, relajado')),
-       tf('hip',t('Hip Circumference','Cadera'),'42 in / 107 cm',
-         t('Widest point','Punto más ancho')))+
-    cn(t('Waist & hip are key metabolic risk markers — more predictive than weight alone.',
-         'Cintura y cadera son marcadores clave de riesgo metabólico — más predictivos que el peso solo.'))+
-    tf('gwt',t('Target Weight (optional)','Peso Meta (opcional)'),'150 lbs / 68 kg',
-      t('Leave blank if weight loss is not your main goal',
-        'Deja en blanco si bajar de peso no es tu objetivo principal'))+
-    sl('whist',t('Weight history (past year)','Historial de peso (último año)'),
-      [t('Stable','Estable'),t('Gained 1–5 kg','Subí 1–5 kg'),
-       t('Gained 5–10 kg','Subí 5–10 kg'),t('Gained >10 kg','Subí más de 10 kg'),
-       t('Lost weight','Bajé de peso'),t('Fluctuating','Fluctuante')])+
-    nv(1)+'</div>';
-}
+function s2(){return '<div class="card">'+hdr(2,t('Health Status','Estado de Salud'),t('Clinical background to identify nutritional risks and personalize your plan.','Antecedentes clínicos para identificar riesgos y personalizar tu plan.'))+sec(t('Diagnosed Conditions','Condiciones Diagnosticadas'))+cf('conds',t('Select all that apply:','Selecciona todas las que apliquen:'),[t('Type 2 Diabetes','Diabetes Tipo 2'),t('Type 1 Diabetes','Diabetes Tipo 1'),t('Prediabetes / Insulin Resistance','Prediabetes / Resistencia a la insulina'),t('Hypertension','Hipertensión'),t('Dyslipidemia','Dislipidemia'),t('Metabolic Syndrome','Síndrome Metabólico'),t('Obesity / Overweight','Obesidad / Sobrepeso'),t('Hypothyroidism / Hyperthyroidism','Hipotiroidismo / Hipertiroidismo'),'PCOS',t('Fatty Liver (NAFLD)','Hígado Graso (HGNA)'),t('Chronic Kidney Disease','Enfermedad Renal Crónica'),'IBS / IBD','GERD / Reflujo',t('Celiac / Gluten Sensitivity','Celiaquía / Sensibilidad al Gluten'),t('Food Allergies','Alergias Alimentarias'),t('None of the above','Ninguna de las anteriores')],'',true,true)+ta('oconds',t('Other conditions or food allergies (specify):','Otras condiciones o alergias alimentarias (especifica):'),t('e.g. Shellfish allergy…','Ej. Alergia a mariscos…'))+sec(t('Recent Lab Results (optional)','Resultados de Lab Recientes (opcional)'))+cn(t('Not required, but very helpful. Enter values from the last 12 months if available.','No obligatorio pero muy útil. Ingresa valores de los últimos 12 meses si los tienes.'))+r2(tf('glu',t('Fasting Glucose','Glucosa en Ayuno'),'105 mg/dL','Ref: <100 normal'),tf('hba1c','HbA1c','6.8%','<5.7% normal  ≥6.5% DM'))+r2(tf('chol',t('Total Cholesterol','Colesterol Total'),'210 mg/dL',''),tf('tg',t('Triglycerides','Triglicéridos'),'180 mg/dL',''))+r2(tf('ldl','LDL','130 mg/dL',''),tf('hdl','HDL','45 mg/dL',''))+r2(tf('bp',t('Blood Pressure','Presión Arterial'),'138/88 mmHg',t('Last reading','Última lectura')),tf('lbd',t('Date of last labs','Fecha últimos labs'),'','',false,'date'))+sec(t('Medications & Supplements','Medicamentos y Suplementos'))+rf('hmeds',t('Currently taking medications?','¿Actualmente tomas medicamentos?'),[t('Yes','Sí'),'No'],'',true)+ta('meds',t('List medications and doses:','Lista medicamentos y dosis:'),t('e.g. Metformin 850mg twice daily  |  Losartan 50mg','Ej. Metformina 850mg dos veces al día  |  Losartán 50mg'))+cn(t('Metformin → B12. Diuretics → K/Mg. Statins → CoQ10. Your nutritionist accounts for all.','Metformina → B12. Diuréticos → K/Mg. Estatinas → CoQ10. Tu nutriólogo considera todo.'))+ta('supps',t('Supplements / vitamins:','Suplementos / vitaminas:'),t('e.g. Vitamin D 2000 IU  |  Omega-3','Ej. Vitamina D 2000 UI  |  Omega-3'))+nv(2)+'</div>';}
 
-function s2(){
-  return '<div class="card">'+
-    hdr(2,t('Health Status','Estado de Salud'),
-      t('Clinical background to identify nutritional risks and personalize your plan.',
-        'Antecedentes clínicos para identificar riesgos y personalizar tu plan.'))+
-    sec(t('Diagnosed Conditions','Condiciones Diagnosticadas'))+
-    cf('conds',t('Select all that apply:','Selecciona todas las que apliquen:'),
-      [t('Type 2 Diabetes','Diabetes Tipo 2'),t('Type 1 Diabetes','Diabetes Tipo 1'),
-       t('Prediabetes / Insulin Resistance','Prediabetes / Resistencia a la insulina'),
-       t('Hypertension','Hipertensión'),t('Dyslipidemia','Dislipidemia'),
-       t('Metabolic Syndrome','Síndrome Metabólico'),t('Obesity / Overweight','Obesidad / Sobrepeso'),
-       t('Hypothyroidism / Hyperthyroidism','Hipotiroidismo / Hipertiroidismo'),
-       'PCOS',t('Fatty Liver (NAFLD)','Hígado Graso (HGNA)'),
-       t('Chronic Kidney Disease','Enfermedad Renal Crónica'),
-       'IBS / IBD','GERD / Reflujo',
-       t('Celiac / Gluten Sensitivity','Celiaquía / Sensibilidad al Gluten'),
-       t('Food Allergies','Alergias Alimentarias'),
-       t('None of the above','Ninguna de las anteriores')],'',true,true)+
-    ta('oconds',t('Other conditions or food allergies (specify):',
-       'Otras condiciones o alergias alimentarias (especifica):'),
-      t('e.g. Shellfish allergy…','Ej. Alergia a mariscos…'))+
-    sec(t('Recent Lab Results (optional)','Resultados de Lab Recientes (opcional)'))+
-    cn(t('Not required, but very helpful. Enter values from the last 12 months if available.',
-         'No obligatorio pero muy útil. Ingresa valores de los últimos 12 meses si los tienes.'))+
-    r2(tf('glu',t('Fasting Glucose','Glucosa en Ayuno'),'105 mg/dL','Ref: <100 normal'),
-       tf('hba1c','HbA1c','6.8%','<5.7% normal  ≥6.5% DM'))+
-    r2(tf('chol',t('Total Cholesterol','Colesterol Total'),'210 mg/dL',''),
-       tf('tg',t('Triglycerides','Triglicéridos'),'180 mg/dL',''))+
-    r2(tf('ldl','LDL','130 mg/dL',''),tf('hdl','HDL','45 mg/dL',''))+
-    r2(tf('bp',t('Blood Pressure','Presión Arterial'),'138/88 mmHg',
-          t('Last reading','Última lectura')),
-       tf('lbd',t('Date of last labs','Fecha últimos labs'),'','',false,'date'))+
-    sec(t('Medications & Supplements','Medicamentos y Suplementos'))+
-    rf('hmeds',t('Currently taking medications?','¿Actualmente tomas medicamentos?'),
-      [t('Yes','Sí'),'No'],'',true)+
-    ta('meds',t('List medications and doses:','Lista medicamentos y dosis:'),
-      t('e.g. Metformin 850mg twice daily  |  Losartan 50mg',
-        'Ej. Metformina 850mg dos veces al día  |  Losartán 50mg'))+
-    cn(t('Metformin → B12. Diuretics → K/Mg. Statins → CoQ10. Your nutritionist accounts for all.',
-         'Metformina → B12. Diuréticos → K/Mg. Estatinas → CoQ10. Tu nutriólogo considera todo.'))+
-    ta('supps',t('Supplements / vitamins:','Suplementos / vitaminas:'),
-      t('e.g. Vitamin D 2000 IU  |  Omega-3','Ej. Vitamina D 2000 UI  |  Omega-3'))+
-    nv(2)+'</div>';
-}
+function s3(){return '<div class="card">'+hdr(3,t('Diet & Food Habits','Alimentación y Hábitos'),t('Understanding your eating patterns is the foundation of your plan.','Entender tu alimentación es la base de tu plan nutricional.'))+sec(t('Eating Pattern','Patrón Alimentario'))+rf('meals',t('Meals per day (including snacks):','Comidas al día (incluyendo colaciones):'),[t('1–2 meals','1–2 comidas'),t('3 meals','3 comidas'),t('3 meals + 1–2 snacks','3 comidas + 1–2 colaciones'),t('Grazing / no fixed schedule','Picoteo / sin horario fijo')],'',true)+cf('dtype',t('Specific diet (select all):','Dieta específica (selecciona todas):'),[t('No specific diet','Sin dieta específica'),'Low-carb / Keto',t('Mediterranean','Mediterránea'),t('Intermittent Fasting','Ayuno Intermitente'),t('Vegetarian','Vegetariano'),t('Vegan','Vegano'),t('Gluten-free','Sin gluten'),t('Lactose-free','Sin lactosa'),'Other / Otro'])+ta('restr',t('Foods you CANNOT eat (allergies, intolerances, restrictions):','Alimentos que NO puedes comer (alergias, intolerancias, restricciones):'),t('e.g. No shellfish, lactose intolerant…','Ej. Sin mariscos, intolerante a lactosa…'),t('Leave blank if none apply','Deja en blanco si no aplica'),true)+ta('dis',t('Foods you strongly dislike:','Alimentos que no te gustan:'),t('e.g. Liver, beets…','Ej. Hígado, betabel…'))+sec(t('24-Hour Food Recall','Recordatorio de 24 Horas'))+ta('recall',t('Describe everything you ate and drank yesterday:','¿Qué comiste y tomaste ayer?'),t('Breakfast: oatmeal\nLunch: rice + chicken\nDinner: tacos (3)\nSnack: apple','Desayuno: avena\nComida: arroz + pollo\nCena: tacos (3)\nColación: manzana'),t('Include amounts if possible','Incluye cantidades si puedes'),true)+sec(t('Beverages','Bebidas'))+rf('water',t('Glasses of water per day:','Vasos de agua al día:'),[t('Less than 4','Menos de 4'),t('4–6 glasses','4–6 vasos'),t('7–8 glasses','7–8 vasos'),t('More than 8','Más de 8')],'',true)+rf('alc',t('Alcoholic beverages:','Bebidas alcohólicas:'),[t('Never','Nunca'),t('Rarely (1–2×/month)','Raramente (1–2×/mes)'),t('Weekly (1–3×/week)','Semanal (1–3×/sem)'),t('Daily or almost daily','Diario o casi diario')],'',true)+rf('sug',t('Sugary drinks (sodas, juices, energy drinks):','Bebidas azucaradas (refrescos, jugos, energizantes):'),[t('Never','Nunca'),t('Rarely','Raramente'),t('1–3 times/week','1–3 veces/sem'),t('Daily','Diario')],'',true)+nv(3)+'</div>';}
 
-function s3(){
-  return '<div class="card">'+
-    hdr(3,t('Diet & Food Habits','Alimentación y Hábitos'),
-      t('Understanding your eating patterns is the foundation of your plan.',
-        'Entender tu alimentación es la base de tu plan nutricional.'))+
-    sec(t('Eating Pattern','Patrón Alimentario'))+
-    rf('meals',t('Meals per day (including snacks):','Comidas al día (incluyendo colaciones):'),
-      [t('1–2 meals','1–2 comidas'),t('3 meals','3 comidas'),
-       t('3 meals + 1–2 snacks','3 comidas + 1–2 colaciones'),
-       t('Grazing / no fixed schedule','Picoteo / sin horario fijo')],'',true)+
-    cf('dtype',t('Specific diet (select all):','Dieta específica (selecciona todas):'),
-      [t('No specific diet','Sin dieta específica'),'Low-carb / Keto',
-       t('Mediterranean','Mediterránea'),t('Intermittent Fasting','Ayuno Intermitente'),
-       t('Vegetarian','Vegetariano'),t('Vegan','Vegano'),
-       t('Gluten-free','Sin gluten'),t('Lactose-free','Sin lactosa'),'Other / Otro'])+
-    ta('restr',t('Foods you CANNOT eat (allergies, intolerances, restrictions):',
-       'Alimentos que NO puedes comer (alergias, intolerancias, restricciones):'),
-      t('e.g. No shellfish, lactose intolerant…','Ej. Sin mariscos, intolerante a lactosa…'),
-      t('Leave blank if none apply','Deja en blanco si no aplica'),true)+
-    ta('dis',t('Foods you strongly dislike:','Alimentos que no te gustan:'),
-      t('e.g. Liver, beets…','Ej. Hígado, betabel…'))+
-    sec(t('24-Hour Food Recall','Recordatorio de 24 Horas'))+
-    ta('recall',t('Describe everything you ate and drank yesterday:',
-       '¿Qué comiste y tomaste ayer?'),
-      t('Breakfast: oatmeal\nLunch: rice + chicken\nDinner: tacos (3)\nSnack: apple',
-        'Desayuno: avena\nComida: arroz + pollo\nCena: tacos (3)\nColación: manzana'),
-      t('Include amounts if possible','Incluye cantidades si puedes'),true)+
-    sec(t('Beverages','Bebidas'))+
-    rf('water',t('Glasses of water per day:','Vasos de agua al día:'),
-      [t('Less than 4','Menos de 4'),t('4–6 glasses','4–6 vasos'),
-       t('7–8 glasses','7–8 vasos'),t('More than 8','Más de 8')],'',true)+
-    rf('alc',t('Alcoholic beverages:','Bebidas alcohólicas:'),
-      [t('Never','Nunca'),t('Rarely (1–2×/month)','Raramente (1–2×/mes)'),
-       t('Weekly (1–3×/week)','Semanal (1–3×/sem)'),
-       t('Daily or almost daily','Diario o casi diario')],'',true)+
-    rf('sug',t('Sugary drinks (sodas, juices, energy drinks):',
-       'Bebidas azucaradas (refrescos, jugos, energizantes):'),
-      [t('Never','Nunca'),t('Rarely','Raramente'),
-       t('1–3 times/week','1–3 veces/sem'),t('Daily','Diario')],'',true)+
-    nv(3)+'</div>';
-}
+function s4(){return '<div class="card">'+hdr(4,t('Physical Activity & Wellness','Actividad Física y Bienestar'),t('Activity, sleep, and stress directly shape your nutritional needs.','Actividad, sueño y estrés impactan directamente tus necesidades nutricionales.'))+sec(t('Exercise','Ejercicio'))+rf('actlvl',t('Current physical activity level:','Nivel de actividad física actual:'),[t('Sedentary — desk job, little exercise','Sedentario — escritorio, poco ejercicio'),t('Lightly active — 1–3 days/week','Ligeramente activo — 1–3 días/sem'),t('Moderately active — 3–5 days/week','Moderadamente activo — 3–5 días/sem'),t('Very active — 6–7 days/week','Muy activo — 6–7 días/sem'),t('Extra active — intense + physical job','Extra activo — intenso + trabajo físico')],'',true)+cf('extp',t('Types of exercise:','Tipos de ejercicio:'),[t('Walking','Caminata'),t('Running','Correr'),t('Cycling','Ciclismo'),t('Weightlifting','Pesas'),t('Swimming','Natación'),'Yoga / Pilates',t('Team sports','Deportes de equipo'),t('None currently','Ninguno actualmente')],'',true)+rf('exdur',t('Average session duration:','Duración promedio por sesión:'),['< 20 min','20–40 min','40–60 min','> 60 min',t('N/A — not exercising','N/A — no hago ejercicio')])+sec(t('Sleep & Stress','Sueño y Estrés'))+cn(t('Sleep and chronic stress affect cortisol, blood glucose, and hunger hormones — critical for metabolic health.','El sueño y el estrés crónico afectan cortisol, glucosa y hormonas del hambre — clave en salud metabólica.'))+scf('sleepq',t('Sleep quality:','Calidad de sueño:'),t('Very poor','Muy mala'),t('Excellent','Excelente'))+rf('slphr',t('Average hours of sleep per night:','Horas de sueño promedio por noche:'),[t('Less than 5 hrs','Menos de 5 hrs'),'5–6 hrs','7–8 hrs',t('More than 8 hrs','Más de 8 hrs')],'',true)+scf('stress',t('Daily stress level (work + personal):','Nivel de estrés diario (trabajo + personal):'),t('Very low','Muy bajo'),t('Very high','Muy alto'))+rf('tob',t('Tobacco / smoking:','Tabaco / cigarro:'),[t('Never','Nunca'),t('Former smoker','Ex-fumador/a'),t('Occasionally','Ocasionalmente'),t('Daily','Diario')],'',true)+rf('wsched',t('Work schedule:','Horario de trabajo:'),[t('Regular daytime hours','Horario diurno regular'),t('Night shifts','Turnos nocturnos'),t('Rotating shifts','Turnos rotativos'),t('Irregular / variable','Irregular / variable')],t('Shift work is associated with altered metabolic patterns.','El trabajo en turnos se asocia con patrones metabólicos alterados.'))+nv(4)+'</div>';}
 
-function s4(){
-  return '<div class="card">'+
-    hdr(4,t('Physical Activity & Wellness','Actividad Física y Bienestar'),
-      t('Activity, sleep, and stress directly shape your nutritional needs.',
-        'Actividad, sueño y estrés impactan directamente tus necesidades nutricionales.'))+
-    sec(t('Exercise','Ejercicio'))+
-    rf('actlvl',t('Current physical activity level:','Nivel de actividad física actual:'),
-      [t('Sedentary — desk job, little exercise','Sedentario — escritorio, poco ejercicio'),
-       t('Lightly active — 1–3 days/week','Ligeramente activo — 1–3 días/sem'),
-       t('Moderately active — 3–5 days/week','Moderadamente activo — 3–5 días/sem'),
-       t('Very active — 6–7 days/week','Muy activo — 6–7 días/sem'),
-       t('Extra active — intense + physical job','Extra activo — intenso + trabajo físico')],'',true)+
-    cf('extp',t('Types of exercise:','Tipos de ejercicio:'),
-      [t('Walking','Caminata'),t('Running','Correr'),t('Cycling','Ciclismo'),
-       t('Weightlifting','Pesas'),t('Swimming','Natación'),'Yoga / Pilates',
-       t('Team sports','Deportes de equipo'),t('None currently','Ninguno actualmente')],'',true)+
-    rf('exdur',t('Average session duration:','Duración promedio por sesión:'),
-      ['< 20 min','20–40 min','40–60 min','> 60 min',
-       t('N/A — not exercising','N/A — no hago ejercicio')])+
-    sec(t('Sleep & Stress','Sueño y Estrés'))+
-    cn(t('Sleep and chronic stress affect cortisol, blood glucose, and hunger hormones — critical for metabolic health.',
-         'El sueño y el estrés crónico afectan cortisol, glucosa y hormonas del hambre — clave en salud metabólica.'))+
-    scf('sleepq',t('Sleep quality:','Calidad de sueño:'),
-      t('Very poor','Muy mala'),t('Excellent','Excelente'))+
-    rf('slphr',t('Average hours of sleep per night:','Horas de sueño promedio por noche:'),
-      [t('Less than 5 hrs','Menos de 5 hrs'),'5–6 hrs','7–8 hrs',
-       t('More than 8 hrs','Más de 8 hrs')],'',true)+
-    scf('stress',t('Daily stress level (work + personal):','Nivel de estrés diario (trabajo + personal):'),
-      t('Very low','Muy bajo'),t('Very high','Muy alto'))+
-    rf('tob',t('Tobacco / smoking:','Tabaco / cigarro:'),
-      [t('Never','Nunca'),t('Former smoker','Ex-fumador/a'),
-       t('Occasionally','Ocasionalmente'),t('Daily','Diario')],'',true)+
-    rf('wsched',t('Work schedule:','Horario de trabajo:'),
-      [t('Regular daytime hours','Horario diurno regular'),
-       t('Night shifts','Turnos nocturnos'),t('Rotating shifts','Turnos rotativos'),
-       t('Irregular / variable','Irregular / variable')],
-      t('Shift work is associated with altered metabolic patterns.',
-        'El trabajo en turnos se asocia con patrones metabólicos alterados.'))+
-    nv(4)+'</div>';
-}
+function s5(){return '<div class="card">'+hdr(5,t('Goals & Motivation','Objetivos y Motivación'),t('Your "why" is as clinically relevant as your lab results.','Tu motivación es tan relevante clínicamente como tus resultados de laboratorio.'))+cf('goals',t('Main health goals (select up to 3):','Objetivos principales (hasta 3):'),[t('Improve HbA1c / blood sugar control','Mejorar HbA1c / control de glucosa'),t('Lower blood pressure','Bajar presión arterial'),t('Lose weight','Bajar de peso'),t('Improve cholesterol / triglycerides','Mejorar colesterol / triglicéridos'),t('Increase energy levels','Aumentar niveles de energía'),t('Improve digestion','Mejorar digestión'),t('Build long-term healthy habits','Hábitos saludables a largo plazo'),t('Reduce medications (with doctor approval)','Reducir medicamentos (con aprobación médica)'),t('Improve sports performance','Mejorar rendimiento deportivo'),t('Feel better overall','Sentirme mejor en general')],'',true)+ta('motiv',t('Why are you seeking nutrition support right now?','¿Por qué buscas apoyo nutricional ahora?'),t('My doctor told me my HbA1c is too high and I want to avoid insulin…','Mi médico me dijo que mi HbA1c está alta y quiero evitar empezar insulina…'),t('No wrong answers — helps your nutritionist understand your context','No hay respuestas incorrectas — ayuda a tu nutriólogo a entender tu contexto'),true)+rf('prevn',t('Have you worked with a nutritionist before?','¿Has trabajado con un nutriólogo antes?'),[t('Yes, with good results','Sí, con buenos resultados'),t('Yes, but did not complete the program','Sí, pero no completé el programa'),t('No, this is my first time','No, es mi primera vez')],'',true)+ta('preve',t('If yes — what worked and what did not?','Si sí — ¿qué funcionó y qué no?'),t('The meal plan was too restrictive…','El plan era muy restrictivo…'))+rf('chal',t('Biggest challenge when trying to eat healthily:','Mayor reto al intentar comer saludable:'),[t('No time to cook','Sin tiempo para cocinar'),t('Cost of healthy food','Costo de alimentos saludables'),t("Don't know what to eat",'No sé qué comer'),t('Social situations / eating out','Situaciones sociales / comer fuera'),t('Emotional / stress eating','Comer por emoción / estrés'),t('Cravings for sweets or processed food','Antojos de dulces o comida procesada'),t('Family does not eat healthy','La familia no come saludable'),t('Inconsistent schedule','Horario inconsistente'),'Other / Otro'],'',true)+nv(5)+'</div>';}
 
-function s5(){
-  return '<div class="card">'+
-    hdr(5,t('Goals & Motivation','Objetivos y Motivación'),
-      t('Your "why" is as clinically relevant as your lab results.',
-        'Tu motivación es tan relevante clínicamente como tus resultados de laboratorio.'))+
-    cf('goals',t('Main health goals (select up to 3):','Objetivos principales (hasta 3):'),
-      [t('Improve HbA1c / blood sugar control','Mejorar HbA1c / control de glucosa'),
-       t('Lower blood pressure','Bajar presión arterial'),
-       t('Lose weight','Bajar de peso'),
-       t('Improve cholesterol / triglycerides','Mejorar colesterol / triglicéridos'),
-       t('Increase energy levels','Aumentar niveles de energía'),
-       t('Improve digestion','Mejorar digestión'),
-       t('Build long-term healthy habits','Hábitos saludables a largo plazo'),
-       t('Reduce medications (with doctor approval)','Reducir medicamentos (con aprobación médica)'),
-       t('Improve sports performance','Mejorar rendimiento deportivo'),
-       t('Feel better overall','Sentirme mejor en general')],'',true)+
-    ta('motiv',t('Why are you seeking nutrition support right now?',
-       '¿Por qué buscas apoyo nutricional ahora?'),
-      t('My doctor told me my HbA1c is too high and I want to avoid insulin…',
-        'Mi médico me dijo que mi HbA1c está alta y quiero evitar empezar insulina…'),
-      t('No wrong answers — helps your nutritionist understand your context',
-        'No hay respuestas incorrectas — ayuda a tu nutriólogo a entender tu contexto'),true)+
-    rf('prevn',t('Have you worked with a nutritionist before?','¿Has trabajado con un nutriólogo antes?'),
-      [t('Yes, with good results','Sí, con buenos resultados'),
-       t('Yes, but did not complete the program','Sí, pero no completé el programa'),
-       t('No, this is my first time','No, es mi primera vez')],'',true)+
-    ta('preve',t('If yes — what worked and what did not?','Si sí — ¿qué funcionó y qué no?'),
-      t('The meal plan was too restrictive…','El plan era muy restrictivo…'))+
-    rf('chal',t('Biggest challenge when trying to eat healthily:','Mayor reto al intentar comer saludable:'),
-      [t('No time to cook','Sin tiempo para cocinar'),
-       t('Cost of healthy food','Costo de alimentos saludables'),
-       t("Don't know what to eat",'No sé qué comer'),
-       t('Social situations / eating out','Situaciones sociales / comer fuera'),
-       t('Emotional / stress eating','Comer por emoción / estrés'),
-       t('Cravings for sweets or processed food','Antojos de dulces o comida procesada'),
-       t('Family does not eat healthy','La familia no come saludable'),
-       t('Inconsistent schedule','Horario inconsistente'),'Other / Otro'],'',true)+
-    nv(5)+'</div>';
-}
-
-function s6(){
-  return '<div class="card">'+
-    hdr(6,t('Scheduling & Logistics','Agenda y Logística'),
-      t("Let's set up your consultation format and timing.",
-        'Configuremos el formato y horarios de tu consulta.'))+
-    rf('fmt',t('Preferred consultation format:','Formato de consulta preferido:'),
-      [t('Video call (Zoom or Google Meet)','Videollamada (Zoom o Google Meet)'),
-       t('WhatsApp video / voice call','WhatsApp video / llamada de voz'),
-       t('Asynchronous (chat + reports, flexible schedule)',
-         'Asíncrono (chat + reportes, horario flexible)')],'',true)+
-    cf('pdays',t('Preferred days:','Días preferidos:'),
-      [t('Monday','Lunes'),t('Tuesday','Martes'),t('Wednesday','Miércoles'),
-       t('Thursday','Jueves'),t('Friday','Viernes'),
-       t('Saturday','Sábado'),t('Sunday','Domingo')],'',true,true)+
-    rf('ptime',t('Preferred time window:','Horario preferido:'),
-      [t('Morning (7am–12pm)','Mañana (7am–12pm)'),
-       t('Afternoon (12pm–5pm)','Tarde (12pm–5pm)'),
-       t('Evening (5pm–9pm)','Noche (5pm–9pm)')],'',true)+
-    sl('tz',t('Your time zone:','Tu zona horaria:'),
-      ['Pacific (PT — Los Angeles)','Mountain (MT — Denver)',
-       'Central (CT — Chicago / Ciudad de México)','Eastern (ET — New York)',
-       t('Other (specify in notes)','Otra (especificar en notas)')],'',true)+
-    rf('pay',t('Preferred payment method:','Método de pago preferido:'),
-      [t('Credit / Debit card (secure link)','Tarjeta de crédito / débito (link seguro)'),
-       'Zelle / Venmo','PayPal',t('Cash','Efectivo'),
-       t('Not sure yet — discuss later','No estoy seguro/a — lo platicamos')])+
-    ta('notes',t('Additional notes (optional):','Notas adicionales (opcional):'),
-      t('e.g. I travel in March, prefer early mornings…',
-        'Ej. Viajo en marzo, prefiero muy temprano…'))+
-    nv(6)+'</div>';
-}
+function s6(){return '<div class="card">'+hdr(6,t('Scheduling & Logistics','Agenda y Logística'),t("Let's set up your consultation format and timing.",'Configuremos el formato y horarios de tu consulta.'))+rf('fmt',t('Preferred consultation format:','Formato de consulta preferido:'),[t('Video call (Zoom or Google Meet)','Videollamada (Zoom o Google Meet)'),t('WhatsApp video / voice call','WhatsApp video / llamada de voz'),t('Asynchronous (chat + reports, flexible schedule)','Asíncrono (chat + reportes, horario flexible)')],'',true)+cf('pdays',t('Preferred days:','Días preferidos:'),[t('Monday','Lunes'),t('Tuesday','Martes'),t('Wednesday','Miércoles'),t('Thursday','Jueves'),t('Friday','Viernes'),t('Saturday','Sábado'),t('Sunday','Domingo')],'',true,true)+rf('ptime',t('Preferred time window:','Horario preferido:'),[t('Morning (7am–12pm)','Mañana (7am–12pm)'),t('Afternoon (12pm–5pm)','Tarde (12pm–5pm)'),t('Evening (5pm–9pm)','Noche (5pm–9pm)')],'',true)+sl('tz',t('Your time zone:','Tu zona horaria:'),['Pacific (PT — Los Angeles)','Mountain (MT — Denver)','Central (CT — Chicago / Ciudad de México)','Eastern (ET — New York)',t('Other (specify in notes)','Otra (especificar en notas)')],'',true)+rf('pay',t('Preferred payment method:','Método de pago preferido:'),[t('Credit / Debit card (secure link)','Tarjeta de crédito / débito (link seguro)'),'Zelle / Venmo','PayPal',t('Cash','Efectivo'),t('Not sure yet — discuss later','No estoy seguro/a — lo platicamos')])+ta('notes',t('Additional notes (optional):','Notas adicionales (opcional):'),t('e.g. I travel in March, prefer early mornings…','Ej. Viajo en marzo, prefiero muy temprano…'))+nv(6)+'</div>';}
 
 function s7(){
-  var c1=v('c1',false)?' chk':'', c2=v('c2',false)?' chk':'', c3=v('c3',false)?' chk':'';
-  return '<div class="card">'+
-    hdr(7,t('Privacy & Consent','Privacidad y Consentimiento'),
-      t('Last step before your summary is generated.',
-        'Último paso antes de generar tu resumen.'))+
-    '<p style="font-size:13.5px;color:var(--tm);line-height:1.7;margin-bottom:18px;">'+
-      t('The information you provide will be used exclusively by your Ryve nutritionist. Your data will not be sold or shared with third parties without your explicit consent.',
-        'La información que proporciones será usada exclusivamente por tu nutriólogo de Ryve. Tus datos no serán vendidos ni compartidos con terceros sin tu consentimiento explícito.')+
-    '</p>'+
-    '<div class="cbox'+c1+'" onclick="tc(\'c1\',this)"><div class="cchk"></div>'+
-      '<div class="ctxt"><strong>'+t('I confirm the information provided is accurate and consent to Ryve Health using it for my nutritional care.',
-        'Confirmo que la información es precisa y consiento que Ryve Health la use para mi atención nutricional.')+'</strong></div></div>'+
-    '<div class="cbox'+c2+'" onclick="tc(\'c2\',this)"><div class="cchk"></div>'+
-      '<div class="ctxt">'+t('I consent to receive follow-up communications from Ryve Health via email and/or WhatsApp.',
-        'Consiento recibir comunicaciones de seguimiento de Ryve Health por email y/o WhatsApp.')+'</div></div>'+
-    '<div class="cbox'+c3+'" onclick="tc(\'c3\',this)"><div class="cchk"></div>'+
-      '<div class="ctxt">'+t('I understand this form does not constitute a medical consultation. Ryve provides nutritional counseling, not medical diagnosis or treatment.',
-        'Entiendo que este formulario no constituye una consulta médica. Ryve ofrece orientación nutricional, no diagnóstico ni tratamiento médico.')+'</div></div>'+
-    nv(7)+'</div>';
+  var c1=v('c1',false)?' chk':'',c2=v('c2',false)?' chk':'',c3=v('c3',false)?' chk':'';
+  return '<div class="card">'+hdr(7,t('Privacy & Consent','Privacidad y Consentimiento'),t('Last step before your summary is generated.','Último paso antes de generar tu resumen.'))+'<p style="font-size:13.5px;color:var(--tm);line-height:1.7;margin-bottom:18px;">'+t('The information you provide will be used exclusively by your Ryve nutritionist. Your data will not be sold or shared with third parties without your explicit consent.','La información que proporciones será usada exclusivamente por tu nutriólogo de Ryve. Tus datos no serán vendidos ni compartidos con terceros sin tu consentimiento explícito.')+'</p>'+'<div class="cbox'+c1+'" onclick="tc(\'c1\',this)"><div class="cchk"></div><div class="ctxt"><strong>'+t('I confirm the information provided is accurate and consent to Ryve Health using it for my nutritional care.','Confirmo que la información es precisa y consiento que Ryve Health la use para mi atención nutricional.')+'</strong></div></div>'+'<div class="cbox'+c2+'" onclick="tc(\'c2\',this)"><div class="cchk"></div><div class="ctxt">'+t('I consent to receive follow-up communications from Ryve Health via email and/or WhatsApp.','Consiento recibir comunicaciones de seguimiento de Ryve Health por email y/o WhatsApp.')+'</div></div>'+'<div class="cbox'+c3+'" onclick="tc(\'c3\',this)"><div class="cchk"></div><div class="ctxt">'+t('I understand this form does not constitute a medical consultation. Ryve provides nutritional counseling, not medical diagnosis or treatment.','Entiendo que este formulario no constituye una consulta médica. Ryve ofrece orientación nutricional, no diagnóstico ni tratamiento médico.')+'</div></div>'+nv(7)+'</div>';
 }
 
 function s8(){
-  function rw(lb,k){
-    var val=v(k,'');
-    if(Array.isArray(val))val=val.join(', ')||'—';
-    return '<div class="srow"><span class="sk">'+lb+'</span><span class="sv">'+(val||'—')+'</span></div>';
-  }
-  return '<div class="card">'+
-    '<div class="sicon">✅</div>'+
-    '<h2 style="text-align:center">'+t("You're all set!",'¡Todo listo!')+'</h2>'+
-    '<p class="sub2" style="text-align:center">'+
-      t('Review your information below. Your Ryve nutritionist will contact you within 24 hours.',
-        'Revisa tu información. Tu nutriólogo de Ryve te contactará en menos de 24 horas.')+
-    '</p>'+
-    '<div class="sblock"><h4>'+t('Personal','Personal')+'</h4>'+
-      rw(t('Name','Nombre'),'fn')+rw(t('Last Name','Apellido'),'ln')+
-      rw(t('Date of Birth','Fecha Nac.'),'dob')+rw(t('Sex','Sexo'),'sex')+
-      rw(t('Language','Idioma'),'lang2')+rw(t('Location','Ubicación'),'city')+
-      rw('Email','email')+rw(t('Phone','Teléfono'),'phone')+rw(t('Source','Fuente'),'src')+
-    '</div>'+
-    '<div class="sblock"><h4>'+t('Measurements','Medidas')+'</h4>'+
-      rw(t('Weight','Peso'),'wt')+rw(t('Height','Estatura'),'ht')+
-      rw(t('Waist','Cintura'),'waist')+rw(t('Hip','Cadera'),'hip')+
-      rw(t('Target weight','Peso meta'),'gwt')+rw(t('Weight history','Historial peso'),'whist')+
-    '</div>'+
-    '<div class="sblock"><h4>'+t('Health','Salud')+'</h4>'+
-      rw(t('Conditions','Condiciones'),'conds')+rw(t('Other','Otros'),'oconds')+
-      rw(t('Fasting Glucose','Glucosa ayuno'),'glu')+rw('HbA1c','hba1c')+
-      rw(t('Cholesterol','Colesterol'),'chol')+rw(t('Triglycerides','Triglicéridos'),'tg')+
-      rw('LDL','ldl')+rw('HDL','hdl')+
-      rw(t('Blood Pressure','Presión Arterial'),'bp')+rw(t('Lab date','Fecha lab'),'lbd')+
-      rw(t('Medications','Medicamentos'),'meds')+rw(t('Supplements','Suplementos'),'supps')+
-    '</div>'+
-    '<div class="sblock"><h4>'+t('Diet & Lifestyle','Alimentación y Estilo de Vida')+'</h4>'+
-      rw(t('Meals/day','Comidas/día'),'meals')+rw(t('Diet type','Tipo dieta'),'dtype')+
-      rw(t('Restrictions','Restricciones'),'restr')+rw(t('Dislikes','No le gustan'),'dis')+
-      rw(t('24h recall','Recordatorio 24h'),'recall')+
-      rw(t('Water','Agua'),'water')+rw(t('Alcohol','Alcohol'),'alc')+rw(t('Sugary drinks','Bebidas azucaradas'),'sug')+
-    '</div>'+
-    '<div class="sblock"><h4>'+t('Activity & Wellness','Actividad y Bienestar')+'</h4>'+
-      rw(t('Activity level','Nivel actividad'),'actlvl')+rw(t('Exercise types','Tipos ejercicio'),'extp')+
-      rw(t('Session duration','Duración sesión'),'exdur')+
-      rw(t('Sleep quality','Calidad sueño'),'sleepq')+rw(t('Sleep hours','Horas sueño'),'slphr')+
-      rw(t('Stress level','Nivel estrés'),'stress')+
-      rw(t('Tobacco','Tabaco'),'tob')+rw(t('Work schedule','Horario trabajo'),'wsched')+
-    '</div>'+
-    '<div class="sblock"><h4>'+t('Goals & Schedule','Objetivos y Agenda')+'</h4>'+
-      rw(t('Goals','Objetivos'),'goals')+rw(t('Motivation','Motivación'),'motiv')+
-      rw(t('Challenge','Reto principal'),'chal')+rw(t('Format','Formato'),'fmt')+
-      rw(t('Preferred days','Días preferidos'),'pdays')+rw(t('Time window','Horario'),'ptime')+
-      rw(t('Time zone','Zona horaria'),'tz')+rw(t('Payment','Pago'),'pay')+
-      rw(t('Notes','Notas'),'notes')+
-    '</div>'+
+  function rw(lb,k){var val=v(k,'');if(Array.isArray(val))val=val.join(', ')||'—';return '<div class="srow"><span class="sk">'+lb+'</span><span class="sv">'+(val||'—')+'</span></div>';}
+  return '<div class="card"><div class="sicon">✅</div><h2 style="text-align:center">'+t("You're all set!",'¡Todo listo!')+'</h2><p class="sub2" style="text-align:center">'+t('Review your information. Your Ryve nutritionist will contact you within 24 hours.','Revisa tu información. Tu nutriólogo de Ryve te contactará en menos de 24 horas.')+'</p>'+
+    '<div class="sblock"><h4>'+t('Personal','Personal')+'</h4>'+rw(t('Name','Nombre'),'fn')+rw(t('Last Name','Apellido'),'ln')+rw(t('DOB','Fecha Nac.'),'dob')+rw(t('Sex','Sexo'),'sex')+rw(t('Language','Idioma'),'lang2')+rw(t('Location','Ubicación'),'city')+rw('Email','email')+rw(t('Phone','Teléfono'),'phone')+rw(t('Source','Fuente'),'src')+'</div>'+
+    '<div class="sblock"><h4>'+t('Measurements','Medidas')+'</h4>'+rw(t('Weight','Peso'),'wt')+rw(t('Height','Estatura'),'ht')+rw(t('Waist','Cintura'),'waist')+rw(t('Hip','Cadera'),'hip')+rw(t('Target weight','Peso meta'),'gwt')+rw(t('Weight history','Historial peso'),'whist')+'</div>'+
+    '<div class="sblock"><h4>'+t('Health','Salud')+'</h4>'+rw(t('Conditions','Condiciones'),'conds')+rw(t('Other','Otros'),'oconds')+rw(t('Glucose','Glucosa ayuno'),'glu')+rw('HbA1c','hba1c')+rw(t('Cholesterol','Colesterol'),'chol')+rw(t('Triglycerides','Triglicéridos'),'tg')+rw('LDL','ldl')+rw('HDL','hdl')+rw(t('Blood Pressure','Presión Arterial'),'bp')+rw(t('Lab date','Fecha lab'),'lbd')+rw(t('Medications','Medicamentos'),'meds')+rw(t('Supplements','Suplementos'),'supps')+'</div>'+
+    '<div class="sblock"><h4>'+t('Diet','Alimentación')+'</h4>'+rw(t('Meals/day','Comidas/día'),'meals')+rw(t('Diet type','Tipo dieta'),'dtype')+rw(t('Restrictions','Restricciones'),'restr')+rw(t('Dislikes','No le gustan'),'dis')+rw(t('24h recall','Recordatorio 24h'),'recall')+rw(t('Water','Agua'),'water')+rw(t('Alcohol','Alcohol'),'alc')+rw(t('Sugary drinks','Bebidas azucaradas'),'sug')+'</div>'+
+    '<div class="sblock"><h4>'+t('Activity & Wellness','Actividad y Bienestar')+'</h4>'+rw(t('Activity level','Nivel actividad'),'actlvl')+rw(t('Exercise','Ejercicio'),'extp')+rw(t('Duration','Duración'),'exdur')+rw(t('Sleep quality','Calidad sueño'),'sleepq')+rw(t('Sleep hours','Horas sueño'),'slphr')+rw(t('Stress','Estrés'),'stress')+rw(t('Tobacco','Tabaco'),'tob')+rw(t('Work schedule','Horario trabajo'),'wsched')+'</div>'+
+    '<div class="sblock"><h4>'+t('Goals & Schedule','Objetivos y Agenda')+'</h4>'+rw(t('Goals','Objetivos'),'goals')+rw(t('Motivation','Motivación'),'motiv')+rw(t('Challenge','Reto'),'chal')+rw(t('Format','Formato'),'fmt')+rw(t('Days','Días'),'pdays')+rw(t('Time','Horario'),'ptime')+rw(t('Timezone','Zona horaria'),'tz')+rw(t('Payment','Pago'),'pay')+rw(t('Notes','Notas'),'notes')+'</div>'+
     '<div class="abtns">'+
+      '<button class="bemail" id="emailBtn" onclick="sendEmail()">📧 '+t('Send intake to Ryve nutritionist','Enviar intake a nutriólogo Ryve')+'</button>'+
       '<button class="bcopy" onclick="doCopy()">📋 '+t('Copy full summary','Copiar resumen completo')+'</button>'+
       '<button class="bwa" onclick="doWA()">📲 '+t('Send via WhatsApp','Enviar por WhatsApp')+'</button>'+
     '</div>'+
-    '<p style="font-size:12px;text-align:center;color:var(--ts);margin-top:10px">'+
-      t('Send to your Ryve nutritionist via WhatsApp or paste in email.',
-        'Envía a tu nutriólogo de Ryve por WhatsApp o pega en un correo.')+
-    '</p></div>';
+    '<p style="font-size:12px;text-align:center;color:var(--ts);margin-top:10px">'+t('Your nutritionist will contact you within 24 hours.','Tu nutriólogo te contactará en menos de 24 horas.')+'</p></div>';
 }
 
 function buildSum(bold){
@@ -593,17 +259,76 @@ function buildSum(bold){
     [t('Payment','Pago'),v('pay')],
   ];
   fl.forEach(function(p){if(p[1])lines.push(b+p[0]+':'+b+' '+p[1]);});
-  lines.push('','_Submitted: '+new Date().toLocaleString()+'_');
+  lines.push('','Submitted: '+new Date().toLocaleString());
   return lines.join('\n');
+}
+
+function sendEmail(){
+  var btn=document.getElementById('emailBtn');
+  if(!btn)return;
+  btn.textContent='⏳ '+t('Sending…','Enviando…');
+  btn.disabled=true;
+  var payload={
+    _subject:'New Ryve Intake — '+(v('fn')+' '+v('ln')).trim()+' | '+new Date().toLocaleDateString(),
+    _replyto:v('email'),
+    patient_name:(v('fn')+' '+v('ln')).trim(),
+    email:v('email'),phone:v('phone'),dob:v('dob'),sex:v('sex'),
+    language:v('lang2'),location:v('city'),source:v('src'),
+    weight:v('wt'),height:v('ht'),waist:v('waist'),hip:v('hip'),
+    target_weight:v('gwt'),weight_history:v('whist'),
+    conditions:Array.isArray(v('conds'))?v('conds').join(', '):v('conds'),
+    other_conditions:v('oconds'),
+    fasting_glucose:v('glu'),hba1c:v('hba1c'),
+    cholesterol:v('chol'),triglycerides:v('tg'),ldl:v('ldl'),hdl:v('hdl'),
+    blood_pressure:v('bp'),lab_date:v('lbd'),
+    medications:v('meds'),supplements:v('supps'),
+    meals_per_day:v('meals'),
+    diet_type:Array.isArray(v('dtype'))?v('dtype').join(', '):v('dtype'),
+    food_restrictions:v('restr'),food_dislikes:v('dis'),
+    food_recall_24h:v('recall'),
+    water:v('water'),alcohol:v('alc'),sugary_drinks:v('sug'),
+    activity_level:v('actlvl'),
+    exercise_types:Array.isArray(v('extp'))?v('extp').join(', '):v('extp'),
+    exercise_duration:v('exdur'),
+    sleep_quality:v('sleepq')?v('sleepq')+'/5':'',
+    sleep_hours:v('slphr'),
+    stress_level:v('stress')?v('stress')+'/5':'',
+    tobacco:v('tob'),work_schedule:v('wsched'),
+    goals:Array.isArray(v('goals'))?v('goals').join(', '):v('goals'),
+    motivation:v('motiv'),main_challenge:v('chal'),
+    consult_format:v('fmt'),
+    preferred_days:Array.isArray(v('pdays'))?v('pdays').join(', '):v('pdays'),
+    preferred_time:v('ptime'),timezone:v('tz'),
+    payment_method:v('pay'),notes:v('notes'),
+    consent_given:v('c1')?'Yes — '+new Date().toLocaleString():'No',
+    submitted_at:new Date().toLocaleString()
+  };
+  fetch('https://formspree.io/f/xvzwllqn',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify(payload)
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.ok||d.next){
+      btn.textContent='✅ '+t('Sent! Check your email.','¡Enviado! Revisa tu correo.');
+      btn.style.background='#1D9E75';
+    } else {
+      btn.textContent='⚠️ '+t('Error — use WhatsApp below','Error — usa WhatsApp abajo');
+      btn.disabled=false;
+    }
+  })
+  .catch(function(){
+    btn.textContent='⚠️ '+t('Error — use WhatsApp below','Error — usa WhatsApp abajo');
+    btn.disabled=false;
+  });
 }
 
 function doCopy(){
   navigator.clipboard.writeText(buildSum(false)).then(function(){
     var btn=document.querySelector('.bcopy');
     btn.textContent='✅ '+t('Copied!','¡Copiado!');
-    setTimeout(function(){
-      btn.textContent='📋 '+t('Copy full summary','Copiar resumen completo');
-    },2500);
+    setTimeout(function(){btn.textContent='📋 '+t('Copy full summary','Copiar resumen completo');},2500);
   });
 }
 function doWA(){
@@ -623,52 +348,24 @@ var STEPS=[
 ];
 var RENDERS=[s0,s1,s2,s3,s4,s5,s6,s7,s8];
 
-function go(n){
-  if(n<0||n>=STEPS.length)return;
-  ST=n;render();
-  window.scrollTo({top:0,behavior:'smooth'});
-}
+function go(n){if(n<0||n>=STEPS.length)return;ST=n;render();window.scrollTo({top:0,behavior:'smooth'});}
 function render(){
-  document.getElementById('pills').innerHTML=STEPS.map(function(s,i){
-    var c=i===ST?'pill active':i<ST?'pill done':'pill';
-    return '<div class="'+c+'" onclick="go('+i+')">'+s.ic+' '+s.l()+'</div>';
-  }).join('');
+  document.getElementById('pills').innerHTML=STEPS.map(function(s,i){var c=i===ST?'pill active':i<ST?'pill done':'pill';return '<div class="'+c+'" onclick="go('+i+')">'+s.ic+' '+s.l()+'</div>';}).join('');
   document.getElementById('pb').style.width=Math.round((ST/(STEPS.length-1))*100)+'%';
   document.getElementById('sc').innerHTML=RENDERS[ST]();
 }
-
 function switchLang(){
-  LG=LG==='en'?'es':'en';
-  var es=LG==='es';
+  LG=LG==='en'?'es':'en';var es=LG==='es';
   document.getElementById('ttag').textContent=es?'Formulario de Ingreso · Confidencial':'Patient Intake · Confidential';
   document.getElementById('wt').textContent=es?'Cuéntanos sobre ti':"Let's get to know you";
-  document.getElementById('ws').textContent=es
-    ?'Este formulario toma aproximadamente 8 minutos. Tus respuestas nos ayudan a diseñar un plan nutricional específico para ti.'
-    :'This intake form takes about 8 minutes. Your answers help us build a nutrition plan designed specifically for your health needs.';
+  document.getElementById('ws').textContent=es?'Este formulario toma aproximadamente 8 minutos. Tus respuestas nos ayudan a diseñar un plan nutricional específico para ti.':'This intake form takes about 8 minutes. Your answers help us build a nutrition plan designed specifically for your health needs.';
   document.getElementById('wb').textContent=es?'Comenzar el formulario →':'Start my intake form →';
   document.getElementById('lh').textContent=es?'Prefer English? Switch language':'¿Prefieres español? Cambiar idioma';
-  var sp=es
-    ?[['Datos personales','Información básica'],['Medidas','Peso, talla'],
-      ['Estado de salud','Condiciones y labs'],['Alimentación','Hábitos'],
-      ['Objetivos','Tu por qué'],['Agenda','Logística']]
-    :[['Personal Info','Basic data'],['Measurements','Weight, height'],
-      ['Health Status','Conditions & labs'],['Diet & Habits','Food patterns'],
-      ['Goals','Your why'],['Scheduling','Logistics']];
-  for(var i=1;i<=6;i++){
-    var et=document.getElementById('s'+i+'t');
-    var es2=document.getElementById('s'+i+'s');
-    if(et)et.textContent=sp[i-1][0];
-    if(es2)es2.textContent=sp[i-1][1];
-  }
+  var sp=es?[['Datos personales','Información básica'],['Medidas','Peso, talla'],['Estado de salud','Condiciones y labs'],['Alimentación','Hábitos'],['Objetivos','Tu por qué'],['Agenda','Logística']]:[['Personal Info','Basic data'],['Measurements','Weight, height'],['Health Status','Conditions & labs'],['Diet & Habits','Food patterns'],['Goals','Your why'],['Scheduling','Logistics']];
+  for(var i=1;i<=6;i++){var et=document.getElementById('s'+i+'t');var es2=document.getElementById('s'+i+'s');if(et)et.textContent=sp[i-1][0];if(es2)es2.textContent=sp[i-1][1];}
   if(document.getElementById('shell').style.display!=='none')render();
 }
-
-function startForm(){
-  document.getElementById('welcome').style.display='none';
-  document.getElementById('shell').style.display='block';
-  render();
-  window.scrollTo({top:0});
-}
+function startForm(){document.getElementById('welcome').style.display='none';document.getElementById('shell').style.display='block';render();window.scrollTo({top:0});}
 </script>
 </body>
 </html>

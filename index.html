@@ -271,6 +271,7 @@ function sendEmail(){
   var payload={
     _subject:'New Ryve Intake — '+(v('fn')+' '+v('ln')).trim()+' | '+new Date().toLocaleDateString(),
     _replyto:v('email'),
+    _to:'hello.ryve@gmail.com',
     patient_name:(v('fn')+' '+v('ln')).trim(),
     email:v('email'),phone:v('phone'),dob:v('dob'),sex:v('sex'),
     language:v('lang2'),location:v('city'),source:v('src'),
